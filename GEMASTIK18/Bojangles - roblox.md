@@ -1,15 +1,15 @@
-![](attachments/Pasted%20image%2020250831013214.png)
-![](attachments/Pasted%20image%2020250830185848.png)
+![](attachments/Pasted%20image%2020250831013214.png)  
+![](attachments/Pasted%20image%2020250830185848.png)  
 In the zip file given, there is a linux kernel image, an executable, a C program source code, a CPIO rootfs file, and a run script.
-![](attachments/Pasted%20image%2020250831012426.png)
+![](attachments/Pasted%20image%2020250831012426.png)  
 The run script itself looks like a regular qemu run command, but I prepended `#!/bin/sh` to it so I can execute it properly.
-![](attachments/Pasted%20image%2020250831011131.png)
-![](attachments/Pasted%20image%2020250831011307.png)
-Decompressing the CPIO rootfs reveals a linux root directory, with an unusual folder named 'penjara' containing `busybox` and `sh` binaries, which can be used to solve the challenge.
-The flag seems to be located at `/root/flag.txt`.
-Obviously, I can see that this is going to be one of those rootfs jail challenges.
-![](attachments/Pasted%20image%2020250831005338.png)
-`main.c` clarifies this, the program basically adds seccomp rules to block the commands that can be used/abused to escape the rootfs jail. I assume `main` is invoked on init. 
+![](attachments/Pasted%20image%2020250831011131.png)  
+![](attachments/Pasted%20image%2020250831011307.png)  
+Decompressing the CPIO rootfs reveals a linux root directory, with an unusual directory named 'penjara', with a `bin` directory containing `busybox` and `sh` binaries, which can be used to solve the challenge.
+The flag seems to be located at `/root/flag.txt`.  
+Obviously, I can already see that this is going to be one of those rootfs jail challenges.
+![](attachments/Pasted%20image%2020250831005338.png)  
+`main.c` clarifies this, the program basically adds seccomp rules to block the commands that can be used/abused to escape the rootfs jail. I assume `main` is invoked on init.  
 I thought this challenge is going to be impossible. But, however...
 ```
 # busybox
@@ -65,10 +65,10 @@ Currently defined functions:
 ```
 `insmod` and `modprobe`, which are available as busybox functions, aren't explicitly blocked in the seccomp rules. I can use this to load kernel modules. 
 After some digging, I found this: https://github.com/SECCON/SECCON2022_final_CTF/tree/main/jeopardy/pwnable/babyescape/solver/driver. I can modify the driver source code to something like this:
-![](attachments/Pasted%20image%2020250831010336.png)
-![](attachments/Pasted%20image%2020250831005945.png)
+![](attachments/Pasted%20image%2020250831010336.png)  
+![](attachments/Pasted%20image%2020250831005945.png)  
 The running kernel version is `linux 6.16.0`, so I can just download the source code, compile it, and build the kernel module for that version of the linux kernel specifically.
-![](attachments/Pasted%20image%2020250831010622.png)
+![](attachments/Pasted%20image%2020250831010622.png)  
 After that, I can just run this script in the directory that contains the `run.sh` script, making sure that the compiled kernel driver, `pwn.ko` exists in the same directory:
 ```
 import base64
@@ -114,9 +114,9 @@ while True:
 # Then attach to interactive shell
 sock.sh()
 ```
-![](attachments/Pasted%20image%2020250831012323.png)
+![](attachments/Pasted%20image%2020250831012323.png)  
 Yep, it works. Now I can use it on the remote server, using `sock = Socket("18.143.31.243", 9008)`
-But since the connection was very bad at the time the competition was going and the machine didn't reset (someone also left their payload kek), I just did this:
-![](attachments/roblox.png)
-That's it. lol. The flag is: `GEMASTIK18{ingfokan_pemabaran_roblox_muncak_gunung}`
-~~nevermind, pwn.ko is and has always been in the remote root dir, not fun.~~
+But since the connection was very bad at the time the competition was going ~~and the machine didn't reset~~, I just did this:
+![](attachments/roblox.png)  
+That's it. lol. The flag is: `GEMASTIK18{ingfokan_pemabaran_roblox_muncak_gunung}`  
+~~nevermind, pwn.ko is and has always been in the remote `/penjara` dir, you just had to insert and load the kernel module. not fun.~~
