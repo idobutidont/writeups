@@ -119,4 +119,8 @@ Yep, it works. Now I can use it on the remote server, using `sock = Socket("18.1
 But since the connection was very bad at the time the competition was going ~~and the machine didn't reset~~, I just did this:
 ![](attachments/roblox.png)  
 That's it. lol. The flag is: `GEMASTIK18{ingfokan_pemabaran_roblox_muncak_gunung}`  
-~~nevermind, pwn.ko is and has always been in the remote `/penjara` dir, you just had to insert and load the kernel module. not fun.~~
+
+
+Revisit:  
+![](./attachments/image.png)  
+nevermind, pwn.ko is and has always been in the remote `/penjara` dir, you just had to insert and load the kernel module. not fun.
